@@ -1,0 +1,84 @@
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Fix marker icon issues */
+.leaflet-default-icon-path {
+  background-image: url("https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png") !important;
+}
+
+.leaflet-default-shadow-path {
+  background-image: url("https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png") !important;
+}
+
+.map-container {
+  width: 100%;
+  height: 600px;
+  position: relative;
+  z-index: 0;
+}
+
+.leaflet-control-container {
+  z-index: 999;
+}
+
+.leaflet-control {
+  clear: both;
+  z-index: 999 !important;
+}
+
+.leaflet-pane {
+  z-index: 1;
+}
+
+/* Dialog content needs a defined height */
+.MuiDialog-paper {
+  min-height: 600px !important;
+}
+
+.MuiDialogContent-root {
+  height: calc(100% - 64px) !important;
+}
+
+/* Legend styles */
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.legend-color.green {
+  background-color: #6bae37;
+}
+
+.legend-color.red {
+  background-color: #e34c4c;
+}
+
+.legend-color.blue {
+  background-color: #4b6dec;
+}
+
+.legend-color.yellow {
+  background-color: #eecf54;
+} 

@@ -1,0 +1,34 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Getting Started with React and TypeScript",
+      "excerpt": "Learn how to set up a new React project with TypeScript and best practices for development.",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+      "author": "John Doe",
+      "date": "2024-03-15",
+      "topics": ["React", "TypeScript", "Web Development"],
+      "image": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg"
+    },
+    {
+      "id": 2,
+      "title": "Material UI Best Practices",
+      "excerpt": "Discover how to create beautiful and responsive UIs using Material UI components.",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+      "author": "Jane Smith",
+      "date": "2024-03-14",
+      "topics": ["Material UI", "UI/UX", "Frontend"],
+      "image": "https://images.pexels.com/photos/92904/pexels-photo-92904.jpeg"
+    },
+    {
+      "id": 3,
+      "title": "Building Scalable React Applications",
+      "excerpt": "Learn about architecture patterns and best practices for large-scale React applications.",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+      "author": "Mike Johnson",
+      "date": "2024-03-13",
+      "topics": ["React", "Architecture", "Scalability"],
+      "image": "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg"
+    }
+  ]
+} 

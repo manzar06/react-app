@@ -1,13 +1,21 @@
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Paper, Container, Divider } from '@mui/material';
-import posts from '../data/posts.json';
+import { Box, Typography, Paper, Container, Divider, CircularProgress } from '@mui/material';
 import ReplyBox from '../components/ReplyBox';
 import { useEffect, useState } from 'react';
+import { usePosts } from '../hooks/usePosts';
 
 const PostDetail = () => {
   const { id } = useParams();
-  const post = posts.posts.find((p) => p.id === Number(id));
+  const { data: posts, loading, error } = usePosts();
   const [formattedContent, setFormattedContent] = useState<string[]>([]);
+  const [post, setPost] = useState<any>(null);
+
+  useEffect(() => {
+    if (!loading && posts.length > 0) {
+      const foundPost = posts.find((p) => p.id === Number(id));
+      setPost(foundPost);
+    }
+  }, [id, posts, loading]);
 
   // Format the post content to render code blocks properly
   useEffect(() => {
@@ -36,6 +44,23 @@ const PostDetail = () => {
       setFormattedContent(formatted);
     }
   }, [post]);
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Loading post...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Typography variant="h4" color="error">Error: {error.message}</Typography>
+      </Container>
+    );
+  }
 
   if (!post) {
     return (

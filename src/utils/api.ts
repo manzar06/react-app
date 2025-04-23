@@ -165,7 +165,7 @@ Important: You must return EXACTLY 3 venues of each type (3 restaurants, 3 conce
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
             'HTTP-Referer': window.location.href, // Required by OpenRouter
-            'X-Title': 'Weather Recommendations App' // Optional but recommended
+            'X-Title': 'Weather Recommendations App' 
           }
         }
       );

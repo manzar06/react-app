@@ -5,6 +5,7 @@ import PostDetail from './pages/PostDetail';
 import Topics from './pages/Topics';
 import Subscriptions from './pages/Subscriptions';
 import OpenAITester from './components/OpenAITester';
+import PostSearch from './components/PostSearch';
 import { TopicProvider } from './contexts/TopicContext';
 // Import Leaflet CSS first
 import 'leaflet/dist/leaflet.css';
@@ -22,6 +23,7 @@ function App() {
             <Route path="topics" element={<Topics />} />
             <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="openai-test" element={<OpenAITester />} />
+            <Route path="search" element={<PostSearch />} />
           </Route>
         </Routes>
       </BrowserRouter>

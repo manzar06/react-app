@@ -1,8 +1,27 @@
-import { Card, CardContent, CardMedia, Grid, Typography, Container, Box } from '@mui/material';
+import { Card, CardContent, CardMedia, Grid, Typography, Container, Box, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
-import posts from '../data/posts.json';
+import { usePosts } from '../hooks/usePosts';
 
 const Home = () => {
+  const { data: posts, loading, error } = usePosts();
+
+  if (loading) {
+    return (
+      <Container maxWidth={false} sx={{ maxWidth: '1400px', py: 3, px: { xs: 2, sm: 3, md: 4 }, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Loading posts...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth={false} sx={{ maxWidth: '1400px', py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+        <Typography color="error">Error loading posts: {error.message}</Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth={false} sx={{ maxWidth: '1400px', py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
       <Box sx={{ mb: 3 }}>
@@ -14,7 +33,7 @@ const Home = () => {
         </Typography>
       </Box>
       <Grid container spacing={2.5}>
-        {posts.posts.map((post) => (
+        {posts.map((post) => (
           <Grid item key={post.id} xs={12} sm={6} lg={4}>
             <Card 
               sx={{ 

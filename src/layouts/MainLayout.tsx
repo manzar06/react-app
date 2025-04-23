@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppBar, Box, Button, CssBaseline, Toolbar, Typography, Stack, Container } from '@mui/material';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import SearchIcon from '@mui/icons-material/Search';
 import RecommendedDialog from '../components/RecommendedDialog';
 
 const MainLayout = () => {
@@ -93,6 +94,20 @@ const MainLayout = () => {
                 }}
               >
                 SUBSCRIPTIONS
+              </Button>
+              <Button 
+                component={Link} 
+                to="/search" 
+                color="inherit"
+                startIcon={<SearchIcon />}
+                sx={{ 
+                  fontWeight: isActive('/search') ? 700 : 400,
+                  opacity: isActive('/search') ? 1 : 0.8,
+                  textTransform: 'none',
+                  fontSize: '0.95rem'
+                }}
+              >
+                SEARCH
               </Button>
             </Stack>
             <Button 

@@ -1,0 +1,583 @@
+1. CLASS DIAGRAM WITH PATTERN ANNOTATIONS
+
+
+@startuml "Blog Platform Class Diagram"
+
+' Title
+title Blog Platform Class Diagram with Design Patterns
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f5f5f5
+skinparam classBorderColor #999999
+skinparam noteBorderColor #999999
+skinparam noteBackgroundColor #ffffcc
+
+package "Models" {
+  ' Observer Pattern
+  note "Observer Pattern: Topic notifies subscribed Users of new posts" as ObserverNote
+  
+  interface Observer {
+    +update(topic: string, postTitle: string): void
+  }
+  
+  interface Subject {
+    +subscribe(observer: Observer): void
+    +unsubscribe(observer: Observer): void
+    +notify(postTitle: string): void
+  }
+  
+  class Topic <<Subject>> {
+    -observers: Observer[]
+    +id: string
+    +name: string
+    +description: string
+    +imageUrl: string
+    +subscribe(observer: Observer): void
+    +unsubscribe(observer: Observer): void
+    +notify(postTitle: string): void
+    +publishPost(postTitle: string): void
+  }
+  
+  class User <<Observer>> {
+    -subscriptions: string[]
+    +id: string
+    +name: string
+    +email: string
+    +avatar: string
+    +update(topic: string, postTitle: string): void
+    +isSubscribed(topicId: string): boolean
+    +addSubscription(topicId: string): void
+    +removeSubscription(topicId: string): void
+    +getSubscriptions(): string[]
+  }
+  
+  ' Factory Pattern
+  note "Factory Pattern: Static methods create Topic and User instances" as FactoryNote
+  
+  class TopicFactory <<Factory>> {
+    +{static} createTopic(topicData: TopicData): Topic
+  }
+  
+  class UserFactory <<Factory>> {
+    +{static} createUser(userData: UserData): User
+  }
+  
+  ' Data Types/DTOs
+  class TopicData {
+    +id: string
+    +name: string
+    +description: string
+    +imageUrl: string
+  }
+  
+  class UserData {
+    +id: string
+    +name: string
+    +email: string
+    +avatar?: string
+  }
+  
+  class Post {
+    +id: number
+    +title: string
+    +excerpt: string
+    +content: string
+    +author: string
+    +date: string
+    +topics: string[]
+    +image: string
+  }
+}
+
+package "Services" {
+  ' Singleton Pattern
+  note "Singleton Pattern: ElasticSearchService has single instance" as SingletonNote
+  
+  class ElasticSearchServiceInstance <<Singleton>> {
+    -static instance: ElasticSearchService
+    -constructor()
+    +{static} getInstance(): ElasticSearchService
+  }
+  
+  ' Strategy Pattern
+  note "Strategy Pattern: Different search strategies with common interface" as StrategyNote
+  
+  interface SearchStrategy {
+    +search(query: string): Promise<Post[]>
+  }
+  
+  class ExactMatchStrategy <<Strategy>> {
+    +search(query: string): Promise<Post[]>
+  }
+  
+  class FuzzyMatchStrategy <<Strategy>> {
+    +search(query: string): Promise<Post[]>
+  }
+  
+  class SemanticSearchStrategy <<Strategy>> {
+    +search(query: string): Promise<Post[]>
+  }
+  
+  class HybridSearchStrategy <<Strategy>> {
+    +search(query: string): Promise<Post[]>
+  }
+  
+  interface ElasticSearchService {
+    +searchPosts(query: string): Promise<Post[]>
+    +indexPost(post: Post): Promise<void>
+    +searchExactMatch(query: string, field: string): Promise<Post[]>
+    +searchFuzzyMatch(query: string, field: string): Promise<Post[]>
+    +searchSemantic(query: string): Promise<Post[]>
+    +searchHybrid(query: string): Promise<Post[]>
+  }
+  
+  ' Adapter Pattern
+  note "Adapter Pattern: Adapts OpenAI API to application interface" as AdapterNote
+  
+  interface OpenAIService {
+    +generateContent(prompt: string): Promise<string>
+    +analyzeSentiment(text: string): Promise<number>
+  }
+  
+  class OpenAIAdapter <<Adapter>> {
+    -apiKey: string
+    -endpoint: string
+    +generateContent(prompt: string): Promise<string>
+    +analyzeSentiment(text: string): Promise<number>
+    +expandQuery(query: string): Promise<string>
+  }
+  
+  ' Facade Pattern
+  note "Facade Pattern: Simplified interface for search functionality" as FacadeNote
+  
+  class SearchFacade <<Facade>> {
+    -elasticSearchService: ElasticSearchService
+    -openAIService: OpenAIService
+    +searchPosts(query: string, type: string): Promise<Post[]>
+    +indexPost(post: Post): Promise<void>
+  }
+}
+
+package "Components/UI" {
+  class PostSearch {
+    -searchQuery: string
+    -searchType: string
+    -results: Post[]
+    -searchFacade: SearchFacade
+    +handleSearch(): void
+    +setSearchType(type: string): void
+    +render(): JSX.Element
+  }
+  
+  class TopicSubscription {
+    -topics: Topic[]
+    -currentUser: User
+    +handleSubscribe(topicId: string): void
+    +handleUnsubscribe(topicId: string): void
+    +render(): JSX.Element
+  }
+  
+  class PostDetail {
+    -post: Post
+    +render(): JSX.Element
+  }
+}
+
+' Relationships
+Topic ..|> Subject
+User ..|> Observer
+Topic "1" --> "*" Observer : notifies >
+User "*" --> "*" Topic : subscribes to >
+
+TopicFactory ..> Topic : creates >
+UserFactory ..> User : creates >
+TopicFactory ..> TopicData : uses >
+UserFactory ..> UserData : uses >
+
+ElasticSearchServiceInstance ..> ElasticSearchService : creates >
+ElasticSearchService --> SearchStrategy : uses >
+SearchStrategy <|.. ExactMatchStrategy
+SearchStrategy <|.. FuzzyMatchStrategy
+SearchStrategy <|.. SemanticSearchStrategy
+SearchStrategy <|.. HybridSearchStrategy
+
+OpenAIAdapter ..|> OpenAIService
+OpenAIAdapter ..> "External API" : calls >
+
+SearchFacade --> ElasticSearchService : uses >
+SearchFacade --> OpenAIService : uses >
+
+PostSearch --> SearchFacade : uses >
+PostSearch --> Post : displays >
+TopicSubscription --> Topic : displays >
+TopicSubscription --> User : uses >
+PostDetail --> Post : displays >
+
+' Connect notes to classes
+ObserverNote .. Topic
+ObserverNote .. User
+FactoryNote .. TopicFactory
+FactoryNote .. UserFactory
+SingletonNote .. ElasticSearchServiceInstance
+StrategyNote .. SearchStrategy
+AdapterNote .. OpenAIAdapter
+FacadeNote .. SearchFacade
+
+@enduml
+
+
+2. OBSERVER PATTERN SEQUENCE DIAGRAM
+
+
+@startuml "Observer Pattern Sequence Diagram"
+
+title Observer Pattern - Topic Subscription Sequence
+
+actor User as ActorUser
+participant "TopicSubscription\nComponent" as TopicComponent
+participant "TopicContext" as Context
+participant "Topic\n<<Subject>>" as Topic
+participant "User\n<<Observer>>" as UserModel
+
+ActorUser -> UI: Clicks "Subscribe" button
+UI -> TopicComponent: handleSubscribe(topicId)
+TopicComponent -> Context: subscribeToTopic(topicId)
+Context -> Topic: subscribe(observer)
+Topic -> Topic: Add observer to\nobservers list
+Context -> UserModel: addSubscription(topicId)
+UserModel -> UserModel: Store topicId in\nsubscriptions
+Context -->> TopicComponent: Subscription complete
+TopicComponent -->> UI: Update UI to show\nsubscribed status
+UI -->> ActorUser: Show confirmation message
+
+note right of Topic: Observer Pattern:\nTopic maintains a list of observers\nand notifies them of state changes
+
+@enduml
+
+
+3. POST CREATION AND NOTIFICATION SEQUENCE DIAGRAM
+
+
+@startuml "Post Creation and Notification Sequence"
+
+title Post Creation and Notification Sequence
+
+actor Author
+participant "PostEditor\nComponent" as Editor
+participant "ElasticSearchService\n<<Singleton>>" as ESService
+participant "Topic\n<<Subject>>" as Topic
+participant "User\n<<Observer>>" as User
+participant "NotificationSystem" as Notification
+
+Author -> Editor: Creates new post
+Editor -> ESService: indexPost(post)
+ESService -> ESService: Store post in\nElasticSearch index
+ESService -->> Editor: Post indexed
+Editor -> Topic: publishPost(postTitle)
+Topic -> Topic: notify(postTitle)
+
+loop for each observer
+  Topic -> User: update(topic, postTitle)
+  User -> User: Process notification
+  User -> Notification: Display notification
+  Notification -->> User: Show notification alert
+end
+
+Editor -->> Author: Post published confirmation
+
+note right of Topic: Observer Pattern:\nTopic notifies all subscribed\nusers when a post is published
+
+@enduml
+
+
+4. SEARCH STRATEGY SEQUENCE DIAGRAM
+
+
+@startuml "Search Strategy Sequence Diagram"
+
+title Search Strategy Pattern Sequence
+
+actor User
+participant "SearchComponent" as UI
+participant "SearchFacade\n<<Facade>>" as Facade
+participant "ElasticSearchService\n<<Singleton>>" as ESService
+participant "SearchStrategyFactory" as Factory
+participant "SearchStrategy\n<<Interface>>" as Strategy
+participant "OpenAIAdapter\n<<Adapter>>" as OpenAI
+
+User -> UI: Enter search query and\nselect search type
+UI -> Facade: searchPosts(query, type)
+Facade -> Factory: getStrategy(type)
+
+alt type == "exact"
+  Factory --> Facade: new ExactMatchStrategy()
+else type == "fuzzy"
+  Factory --> Facade: new FuzzyMatchStrategy()
+else type == "semantic"
+  Factory --> Facade: new SemanticSearchStrategy()
+else type == "hybrid"
+  Factory --> Facade: new HybridSearchStrategy()
+end
+
+Facade -> Strategy: search(query)
+
+alt Semantic or Hybrid Search
+  Strategy -> OpenAI: expandQuery(query)
+  OpenAI -> OpenAI: Call OpenAI API
+  OpenAI --> Strategy: enhanced query
+end
+
+Strategy -> ESService: Execute search query
+ESService -> ESService: Run Elasticsearch query
+ESService --> Strategy: search results
+Strategy --> Facade: posts[]
+Facade --> UI: posts[]
+UI --> User: Display search results
+
+note right of Strategy: Strategy Pattern:\nDifferent search algorithms\nencapsulated in strategy classes
+
+@enduml
+
+
+5. COMPONENT DIAGRAM
+
+
+@startuml "Blog Platform Component Diagram"
+
+title Blog Platform Component Diagram
+
+package "Frontend Components" {
+  [Home Page]
+  [Post Detail]
+  [Topic List]
+  [Search Interface]
+  [User Subscriptions]
+}
+
+package "Core Services" {
+  [TopicService]
+  [SearchService <<Facade>>]
+  [ElasticSearchService <<Singleton>>]
+  [OpenAIService <<Adapter>>]
+  [NotificationService]
+}
+
+package "Data Models" {
+  [Topic <<Subject>>]
+  [User <<Observer>>]
+  [Post]
+  [Search Strategies]
+}
+
+package "External Systems" {
+  [ElasticSearch]
+  [OpenAI API]
+}
+
+' Frontend to Services
+[Home Page] --> [TopicService]
+[Post Detail] --> [ElasticSearchService]
+[Topic List] --> [TopicService]
+[Search Interface] --> [SearchService]
+[User Subscriptions] --> [TopicService]
+[User Subscriptions] --> [NotificationService]
+
+' Service Interactions
+[SearchService] --> [ElasticSearchService]
+[SearchService] --> [OpenAIService]
+[TopicService] --> [Topic]
+[TopicService] --> [User]
+[NotificationService] --> [User]
+
+' Service to Model
+[ElasticSearchService] --> [Post]
+[ElasticSearchService] --> [Search Strategies]
+
+' External Integrations
+[ElasticSearchService] --> [ElasticSearch]
+[OpenAIService] --> [OpenAI API]
+
+note "Facade Pattern" as FacadeNote
+FacadeNote .. [SearchService]
+
+note "Singleton Pattern" as SingletonNote
+SingletonNote .. [ElasticSearchService]
+
+note "Adapter Pattern" as AdapterNote
+AdapterNote .. [OpenAIService]
+
+note "Strategy Pattern" as StrategyNote
+StrategyNote .. [Search Strategies]
+
+note "Observer Pattern" as ObserverNote
+ObserverNote .. [Topic]
+ObserverNote .. [User]
+
+@enduml
+
+
+6. USE CASE DIAGRAM
+
+
+@startuml "Blog Platform Use Case Diagram"
+
+title Blog Platform Use Case Diagram
+
+left to right direction
+actor "Reader" as reader
+actor "Author" as author
+actor "Subscriber" as subscriber
+actor "Administrator" as admin
+
+rectangle "Blog Platform" {
+  usecase "View Posts" as UC1
+  usecase "Search Posts" as UC2
+  usecase "View Topics" as UC3
+  usecase "Subscribe to Topics" as UC4
+  usecase "Receive Notifications" as UC5
+  usecase "Create Posts" as UC6
+  usecase "Edit Posts" as UC7
+  usecase "Manage Topics" as UC8
+  usecase "Manage Users" as UC9
+}
+
+reader --> UC1
+reader --> UC2
+reader --> UC3
+subscriber --> UC4
+subscriber --> UC5
+author --> UC6
+author --> UC7
+admin --> UC8
+admin --> UC9
+
+note right of UC2
+  Uses Strategy Pattern for
+  different search types
+end note
+
+note right of UC4
+  Uses Observer Pattern for
+  topic subscriptions
+end note
+
+note right of UC6
+  Posts are indexed in ElasticSearch
+  using Singleton and Facade patterns
+end note
+
+@enduml
+
+
+7. OBSERVER PATTERN DETAILED CLASS DIAGRAM
+
+
+@startuml "Observer Pattern Detail"
+
+title Observer Pattern Implementation Details
+
+interface Observer {
+  +update(topic: string, postTitle: string): void
+}
+
+interface Subject {
+  +subscribe(observer: Observer): void
+  +unsubscribe(observer: Observer): void
+  +notify(postTitle: string): void
+}
+
+class Topic {
+  -observers: Observer[]
+  +id: string
+  +name: string
+  +description: string
+  +imageUrl: string
+  +subscribe(observer: Observer): void
+  +unsubscribe(observer: Observer): void
+  +notify(postTitle: string): void
+  +publishPost(postTitle: string): void
+}
+
+class User {
+  -subscriptions: string[]
+  +id: string
+  +name: string
+  +email: string
+  +avatar: string
+  +update(topic: string, postTitle: string): void
+  +isSubscribed(topicId: string): boolean
+  +addSubscription(topicId: string): void
+  +removeSubscription(topicId: string): void
+  +getSubscriptions(): string[]
+}
+
+Topic ..|> Subject
+User ..|> Observer
+Topic "1" o--> "*" Observer : observers
+User "*" --> "*" Topic : subscribes to
+
+note "Observer Pattern:\nTopic (Subject) notifies User (Observer)\nwhen new posts are published" as N1
+N1 .. Topic
+N1 .. User
+
+@enduml
+
+
+8. STRATEGY PATTERN DETAILED CLASS DIAGRAM
+
+
+@startuml "Strategy Pattern Detail"
+
+title Search Strategy Pattern Implementation Details
+
+interface SearchStrategy {
+  +search(query: string): Promise<Post[]>
+}
+
+class ExactMatchStrategy {
+  +search(query: string): Promise<Post[]>
+}
+
+class FuzzyMatchStrategy {
+  +search(query: string): Promise<Post[]>
+}
+
+class SemanticSearchStrategy {
+  +search(query: string): Promise<Post[]>
+  -expandQuery(query: string): Promise<string>
+}
+
+class HybridSearchStrategy {
+  +search(query: string): Promise<Post[]>
+  -expandQuery(query: string): Promise<string>
+}
+
+class SearchContext {
+  -currentStrategy: SearchStrategy
+  +setStrategy(strategy: SearchStrategy): void
+  +executeSearch(query: string): Promise<Post[]>
+}
+
+class ElasticSearchService {
+  +search(query: Object): Promise<Post[]>
+}
+
+SearchStrategy <|.. ExactMatchStrategy
+SearchStrategy <|.. FuzzyMatchStrategy
+SearchStrategy <|.. SemanticSearchStrategy
+SearchStrategy <|.. HybridSearchStrategy
+
+SearchContext o--> SearchStrategy
+SearchContext --> ElasticSearchService : uses
+
+ExactMatchStrategy --> ElasticSearchService : uses
+FuzzyMatchStrategy --> ElasticSearchService : uses
+SemanticSearchStrategy --> ElasticSearchService : uses
+HybridSearchStrategy --> ElasticSearchService : uses
+
+note "Strategy Pattern:\nEncapsulates different search\nalgorithms that are interchangeable" as N1
+N1 .. SearchStrategy
+
+@enduml
